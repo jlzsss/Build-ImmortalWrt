@@ -15,7 +15,7 @@ on:
 env:
   REPO_URL: https://github.com/immortalwrt/immortalwrt
   REPO_BRANCH: openwrt-24.10
-  CHOOSE_VERSION: 
+  CHOOSE_VERSION: v24.10.1
   FEEDS_CONF: feeds.conf.default
   CONFIG_FILE: .config
   DIY_P1_SH: diy-part1.sh
@@ -180,11 +180,11 @@ jobs:
       - name: Compress directory
         run: |
           sudo rm -rf /workdir/openwrt/dl /workdir/openwrt/tmp /workdir/openwrt/build_dir /workdir/openwrt/staging_dir
-          tar -czlf staging_dir.tar.gz /mnt/openwrt/staging_dir && sudo rm -rf /mnt/openwrt/staging_dir
-          tar -czlf build_dir.tar.gz /mnt/openwrt/build_dir && sudo rm -rf /mnt/openwrt/build_dir
-          tar -czlf tmp.tar.gz /mnt/openwrt/tmp && sudo rm -rf /mnt/openwrt/tmp
-          tar -czlf dl.tar.gz /mnt/openwrt/dl && sudo rm -rf /mnt/openwrt/dl
-          tar -czlf openwrt.tar.gz /workdir/openwrt && sudo rm -rf /workdir/openwrt
+          tar -czf staging_dir.tar.gz /mnt/openwrt/staging_dir && sudo rm -rf /mnt/openwrt/staging_dir
+          tar -czf build_dir.tar.gz /mnt/openwrt/build_dir && sudo rm -rf /mnt/openwrt/build_dir
+          tar -czf tmp.tar.gz /mnt/openwrt/tmp && sudo rm -rf /mnt/openwrt/tmp
+          tar -czf dl.tar.gz /mnt/openwrt/dl && sudo rm -rf /mnt/openwrt/dl
+          tar -czf openwrt.tar.gz /workdir/openwrt && sudo rm -rf /workdir/openwrt
           df -hT
 
       - name: Store build artifacts
@@ -330,11 +330,11 @@ jobs:
       - name: Compress directory
         run: |
           sudo rm -rf /workdir/openwrt/dl /workdir/openwrt/tmp /workdir/openwrt/build_dir /workdir/openwrt/staging_dir
-          tar -czlf staging_dir.tar.gz /mnt/openwrt/staging_dir && sudo rm -rf /mnt/openwrt/staging_dir
-          tar -czlf build_dir.tar.gz /mnt/openwrt/build_dir && sudo rm -rf /mnt/openwrt/build_dir
-          tar -czlf tmp.tar.gz /mnt/openwrt/tmp && sudo rm -rf /mnt/openwrt/tmp
-          tar -czlf dl.tar.gz /mnt/openwrt/dl && sudo rm -rf /mnt/openwrt/dl
-          tar -czlf openwrt.tar.gz /workdir/openwrt && sudo rm -rf /workdir/openwrt
+          tar -czf staging_dir.tar.gz /mnt/openwrt/staging_dir && sudo rm -rf /mnt/openwrt/staging_dir
+          tar -czf build_dir.tar.gz /mnt/openwrt/build_dir && sudo rm -rf /mnt/openwrt/build_dir
+          tar -czf tmp.tar.gz /mnt/openwrt/tmp && sudo rm -rf /mnt/openwrt/tmp
+          tar -czf dl.tar.gz /mnt/openwrt/dl && sudo rm -rf /mnt/openwrt/dl
+          tar -czf openwrt.tar.gz /workdir/openwrt && sudo rm -rf /workdir/openwrt
           df -hT
 
       - name: Store build artifacts
