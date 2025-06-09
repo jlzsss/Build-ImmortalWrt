@@ -157,7 +157,7 @@ jobs:
           make -j$(($(nproc) + 1)) toolchain/compile
           make -j$(($(nproc) + 1)) target/linux/compile
           make -j$(($(nproc) + 1)) package/{node,golang,python3,php8,ruby,perl,rust,jq,docker}/compile
-          echo "::set-output name=status::success"
+          echo "status=success" >> $GITHUB_OUTPUT
           grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
           [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
           echo "FILE_DATE=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
@@ -172,7 +172,7 @@ jobs:
           make -j1 toolchain/compile V=s
           make -j1 target/linux/compile V=s
           make -j1 package/{node,golang,python3,php8,ruby,perl,rust,jq,docker}/compile V=s
-          echo "::set-output name=status::success"
+          echo "status=success" >> $GITHUB_OUTPUT
           grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
           [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
           echo "FILE_DATE=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
@@ -275,12 +275,10 @@ jobs:
 
       - name: Move files
         run: |
-          # 使用rsync同步目录并清理原目录
           rsync -av /workdir/openwrt/dl/ /mnt/openwrt/dl/ && rm -rf /workdir/openwrt/dl
           rsync -av /workdir/openwrt/tmp/ /mnt/openwrt/tmp/ && rm -rf /workdir/openwrt/tmp
           rsync -av /workdir/openwrt/build_dir/ /mnt/openwrt/build_dir/ && rm -rf /workdir/openwrt/build_dir
           rsync -av /workdir/openwrt/staging_dir/ /mnt/openwrt/staging_dir/ && rm -rf /workdir/openwrt/staging_dir
-          # 创建符号链接保持路径映射
           ln -sf /mnt/openwrt/dl /workdir/openwrt/dl
           ln -sf /mnt/openwrt/tmp /workdir/openwrt/tmp
           ln -sf /mnt/openwrt/build_dir /workdir/openwrt/build_dir
@@ -290,10 +288,8 @@ jobs:
       - name: Fix kernel config missing issue
         run: |
            cd openwrt
-           # 从配置文件中获取 Linux 内核版本号
            LINUX_VERSION=$(grep '^CONFIG_LINUX_' .config | sed -r 's/^CONFIG_LINUX_([0-9\.]+)=y/\1/')
            KERNEL_CONFIG_DIR="build_dir/target-x86_64_musl/linux-x86_64/linux-${LINUX_VERSION}"
-           # 确保 kernel 配置文件存在
            if [ ! -f "${KERNEL_CONFIG_DIR}/.config" ]; then
            echo "Kernel .config 文件缺失，尝试重新生成"
            make target/linux/clean
@@ -309,7 +305,7 @@ jobs:
           echo -e "$(($(nproc) + 1)) thread compile"
           make -j$(($(nproc) + 1)) package/luci/compile
           make -j$(($(nproc) + 1)) package/{luci-app-qbittorrent,luci-app-passwall,luci-app-shadowsocksr,luci-app-vssr,luci-app-adblock-fast,luci-app-adbyby-plus,luci-app-adguardhome,luci-app-transmission,luci-app-aria2,luci-app-bypass,luci-app-homeproxy,luci-app-kcptun,luci-app-openclash,luci-app-passwall2,luci-app-smartdns,luci-app-ssr-plus,luci-app-store,luci-app-trojan,luci-app-v2ray,luci-app-v2raya}/compile
-          echo "::set-output name=status::success"
+          echo "status=success" >> $GITHUB_OUTPUT
           grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
           [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
           echo "FILE_DATE=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
@@ -322,7 +318,7 @@ jobs:
           cd openwrt
           make -j1 package/luci/compile V=s
           make -j1 package/{luci-app-qbittorrent,luci-app-passwall,luci-app-shadowsocksr,luci-app-vssr,luci-app-adblock-fast,luci-app-adbyby-plus,luci-app-adguardhome,luci-app-transmission,luci-app-aria2,luci-app-bypass,luci-app-homeproxy,luci-app-kcptun,luci-app-openclash,luci-app-passwall2,luci-app-smartdns,luci-app-ssr-plus,luci-app-store,luci-app-trojan,luci-app-v2ray,luci-app-v2raya}/compile V=s
-          echo "::set-output name=status::success"
+          echo "status=success" >> $GITHUB_OUTPUT
           grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
           [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
           echo "FILE_DATE=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
@@ -425,12 +421,10 @@ jobs:
 
       - name: Move files
         run: |
-          # 使用rsync同步目录并清理原目录
           rsync -av /workdir/openwrt/dl/ /mnt/openwrt/dl/ && rm -rf /workdir/openwrt/dl
           rsync -av /workdir/openwrt/tmp/ /mnt/openwrt/tmp/ && rm -rf /workdir/openwrt/tmp
           rsync -av /workdir/openwrt/build_dir/ /mnt/openwrt/build_dir/ && rm -rf /workdir/openwrt/build_dir
           rsync -av /workdir/openwrt/staging_dir/ /mnt/openwrt/staging_dir/ && rm -rf /workdir/openwrt/staging_dir
-          # 创建符号链接保持路径映射
           ln -sf /mnt/openwrt/dl /workdir/openwrt/dl
           ln -sf /mnt/openwrt/tmp /workdir/openwrt/tmp
           ln -sf /mnt/openwrt/build_dir /workdir/openwrt/build_dir
@@ -440,10 +434,8 @@ jobs:
       - name: Fix kernel config missing issue
         run: |
            cd openwrt
-           # 从配置文件中获取 Linux 内核版本号
            LINUX_VERSION=$(grep '^CONFIG_LINUX_' .config | sed -r 's/^CONFIG_LINUX_([0-9\.]+)=y/\1/')
            KERNEL_CONFIG_DIR="build_dir/target-x86_64_musl/linux-x86_64/linux-${LINUX_VERSION}"
-           # 确保 kernel 配置文件存在
            if [ ! -f "${KERNEL_CONFIG_DIR}/.config" ]; then
            echo "Kernel .config 文件缺失，尝试重新生成"
            make target/linux/clean
@@ -458,7 +450,7 @@ jobs:
           cd openwrt
           echo -e "$(($(nproc) + 1)) thread compile"
           make -j$(($(nproc) + 1))
-          echo "::set-output name=status::success"
+          echo "status=success" >> $GITHUB_OUTPUT
           grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
           [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
           echo "FILE_DATE=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
@@ -470,7 +462,7 @@ jobs:
         run: |
           cd openwrt
           make -j1 V=s
-          echo "::set-output name=status::success"
+          echo "status=success" >> $GITHUB_OUTPUT
           grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
           [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
           echo "FILE_DATE=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
@@ -492,12 +484,12 @@ jobs:
       - name: Organize files
         id: organize
         if: env.UPLOAD_FILES == 'true' && !cancelled()
-        shell: pwsh
+        shell: bash
         run: |
           rm -rf openwrt/bin/targets
-          echo "::set-output name=status::success"
-          Compress-Archive -Path /workdir/openwrt/bin/packages OpenWrt_packages${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}.zip
-          Compress-Archive -Path /workdir/openwrt/bin OpenWrt_${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}.tar.gz
+          echo "status=success" >> $GITHUB_OUTPUT
+          zip -r OpenWrt_packages${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}.zip openwrt/bin/packages
+          tar -czf OpenWrt_${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}.tar.gz openwrt/bin
 
       - name: Upload files to cowtransfer
         id: cowtransfer
@@ -506,7 +498,7 @@ jobs:
           curl -fsSL git.io/file-transfer | sh
           ./transfer cow --block 2621440 -s -p 99 --hash --no-progress *.zip 2>&1 | tee cowtransfer.log
           echo "::warning file=cowtransfer.com::$(cat cowtransfer.log | grep https)"
-          echo "::set-output name=url::$(cat cowtransfer.log | grep https | cut -f3 -d" ")"
+          echo "url=$(cat cowtransfer.log | grep https | cut -f3 -d" ")" >> $GITHUB_OUTPUT
 
       - name: Upload files to WeTransfer
         id: wetransfer
@@ -515,17 +507,17 @@ jobs:
           curl -fsSL git.io/file-transfer | sh
           ./transfer wet -s -p 16 --no-progress *.zip 2>&1 | tee wetransfer.log
           echo "::warning file=wetransfer.com::$(cat wetransfer.log | grep https)"
-          echo "::set-output name=url::$(cat wetransfer.log | grep https | cut -f3 -d" ")"
+          echo "url=$(cat wetransfer.log | grep https | cut -f3 -d" ")" >> $GITHUB_OUTPUT
 
       - name: Generate release tag
         id: tag
         if: env.UPLOAD_RELEASE == 'true' && !cancelled()
         run: |
-          echo "::set-output name=release_tag::$(date +"%Y.%m.%d-%H%M")"
+          echo "release_tag=$(date +"%Y.%m.%d-%H%M")" >> $GITHUB_OUTPUT
           touch release.txt
           [ $UPLOAD_COWTRANSFER = true ] && echo "🔗 [Cowtransfer](${{ steps.cowtransfer.outputs.url }})" >> release.txt
           [ $UPLOAD_WETRANSFER = true ] && echo "🔗 [WeTransfer](${{ steps.wetransfer.outputs.url }})" >> release.txt
-          echo "::set-output name=status::success"
+          echo "status=success" >> $GITHUB_OUTPUT
 
       - name: Upload files to release
         uses: softprops/action-gh-release@v1
