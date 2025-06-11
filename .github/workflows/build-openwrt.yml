@@ -158,7 +158,7 @@ jobs:
           make -j$(($(nproc) + 1)) target/linux/compile
           make -j$(($(nproc) + 1)) package/{node,golang,python3,php8,ruby,perl,rust,jq,docker}/compile
           echo "status=success" >> $GITHUB_OUTPUT
-          grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
+          grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' | tr -d '\n' > DEVICE_NAME
           [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
           echo "FILE_DATE=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
           df -hT
@@ -173,7 +173,7 @@ jobs:
           make -j1 target/linux/compile V=s
           make -j1 package/{node,golang,python3,php8,ruby,perl,rust,jq,docker}/compile V=s
           echo "status=success" >> $GITHUB_OUTPUT
-          grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
+          grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' | tr -d '\n' > DEVICE_NAME
           [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
           echo "FILE_DATE=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
 
@@ -306,7 +306,7 @@ jobs:
           make -j$(($(nproc) + 1)) package/luci/compile
           make -j$(($(nproc) + 1)) package/{luci-app-qbittorrent,luci-app-passwall,luci-app-shadowsocksr,luci-app-vssr,luci-app-adblock-fast,luci-app-adbyby-plus,luci-app-adguardhome,luci-app-transmission,luci-app-aria2,luci-app-bypass,luci-app-homeproxy,luci-app-kcptun,luci-app-openclash,luci-app-passwall2,luci-app-smartdns,luci-app-ssr-plus,luci-app-store,luci-app-trojan,luci-app-v2ray,luci-app-v2raya}/compile
           echo "status=success" >> $GITHUB_OUTPUT
-          grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
+          grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' | tr -d '\n' > DEVICE_NAME
           [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
           echo "FILE_DATE=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
           df -hT
@@ -319,7 +319,7 @@ jobs:
           make -j1 package/luci/compile V=s
           make -j1 package/{luci-app-qbittorrent,luci-app-passwall,luci-app-shadowsocksr,luci-app-vssr,luci-app-adblock-fast,luci-app-adbyby-plus,luci-app-adguardhome,luci-app-transmission,luci-app-aria2,luci-app-bypass,luci-app-homeproxy,luci-app-kcptun,luci-app-openclash,luci-app-passwall2,luci-app-smartdns,luci-app-ssr-plus,luci-app-store,luci-app-trojan,luci-app-v2ray,luci-app-v2raya}/compile V=s
           echo "status=success" >> $GITHUB_OUTPUT
-          grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
+          grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' | tr -d '\n' > DEVICE_NAME
           [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
           echo "FILE_DATE=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
 
@@ -451,7 +451,7 @@ jobs:
           echo -e "$(($(nproc) + 1)) thread compile"
           make -j$(($(nproc) + 1))
           echo "status=success" >> $GITHUB_OUTPUT
-          grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
+          grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' | tr -d '\n' > DEVICE_NAME
           [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
           echo "FILE_DATE=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
           df -hT
@@ -463,7 +463,7 @@ jobs:
           cd openwrt
           make -j1 V=s
           echo "status=success" >> $GITHUB_OUTPUT
-          grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
+          grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' | tr -d '\n' > DEVICE_NAME
           [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
           echo "FILE_DATE=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
 
@@ -488,15 +488,15 @@ jobs:
         run: |
           rm -rf openwrt/bin/targets
           echo "status=success" >> $GITHUB_OUTPUT
-          zip -r OpenWrt_packages${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}.zip openwrt/bin/packages
-          tar -czf OpenWrt_${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}.tar.gz openwrt/bin
+          zip -r "OpenWrt_packages${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}.zip" openwrt/bin/packages
+          tar -czf "OpenWrt_${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}.tar.gz" openwrt/bin
 
       - name: Upload files to cowtransfer
         id: cowtransfer
         if: steps.organize.outputs.status == 'success' && env.UPLOAD_COWTRANSFER == 'true' && !cancelled()
         run: |
           curl -fsSL git.io/file-transfer | sh
-          ./transfer cow --block 2621440 -s -p 99 --hash --no-progress *.zip 2>&1 | tee cowtransfer.log
+          ./transfer cow --block 2621440 -s -p 99 --hash --no-progress "OpenWrt_packages${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}.zip" 2>&1 | tee cowtransfer.log
           echo "::warning file=cowtransfer.com::$(cat cowtransfer.log | grep https)"
           echo "url=$(cat cowtransfer.log | grep https | cut -f3 -d" ")" >> $GITHUB_OUTPUT
 
@@ -505,7 +505,7 @@ jobs:
         if: steps.organize.outputs.status == 'success' && env.UPLOAD_WETRANSFER == 'true' && !cancelled()
         run: |
           curl -fsSL git.io/file-transfer | sh
-          ./transfer wet -s -p 16 --no-progress *.zip 2>&1 | tee wetransfer.log
+          ./transfer wet -s -p 16 --no-progress "OpenWrt_packages${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}.zip" 2>&1 | tee wetransfer.log
           echo "::warning file=wetransfer.com::$(cat wetransfer.log | grep https)"
           echo "url=$(cat wetransfer.log | grep https | cut -f3 -d" ")" >> $GITHUB_OUTPUT
 
