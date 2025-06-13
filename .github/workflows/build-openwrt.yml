@@ -152,6 +152,7 @@ jobs:
         id: Multi-thread
         run: |
           cd openwrt
+          export LDFLAGS="$LDFLAGS -lssp"
           echo -e "$(($(nproc) + 1)) thread compile"
           make -j$(($(nproc) + 1)) tools/compile
           make -j$(($(nproc) + 1)) toolchain/compile
@@ -171,6 +172,7 @@ jobs:
         if: failure()
         run: |
           cd openwrt
+          export LDFLAGS="$LDFLAGS -lssp"
           make -j1 tools/compile V=s
           make -j1 toolchain/compile V=s
           make -j1 target/linux/compile V=s
@@ -308,6 +310,7 @@ jobs:
         id: Multi-thread
         run: |
           cd openwrt
+          export LDFLAGS="$LDFLAGS -lssp"
           echo -e "$(($(nproc) + 1)) thread compile"
           make -j$(($(nproc) + 1)) package/luci/compile
           make -j$(($(nproc) + 1)) package/{luci-app-qbittorrent,luci-app-passwall,luci-app-shadowsocksr,luci-app-vssr,luci-app-adblock-fast,luci-app-adbyby-plus,luci-app-adguardhome,luci-app-transmission,luci-app-aria2,luci-app-bypass,luci-app-homeproxy,luci-app-kcptun,luci-app-openclash,luci-app-passwall2,luci-app-smartdns,luci-app-ssr-plus,luci-app-store,luci-app-trojan,luci-app-v2ray,luci-app-v2raya}/compile
@@ -325,6 +328,7 @@ jobs:
         if: failure()
         run: |
           cd openwrt
+          export LDFLAGS="$LDFLAGS -lssp"
           make -j1 package/luci/compile V=s
           make -j1 package/{luci-app-qbittorrent,luci-app-passwall,luci-app-shadowsocksr,luci-app-vssr,luci-app-adblock-fast,luci-app-adbyby-plus,luci-app-adguardhome,luci-app-transmission,luci-app-aria2,luci-app-bypass,luci-app-homeproxy,luci-app-kcptun,luci-app-openclash,luci-app-passwall2,luci-app-smartdns,luci-app-ssr-plus,luci-app-store,luci-app-trojan,luci-app-v2ray,luci-app-v2raya}/compile V=s
           echo "status=success" >> $GITHUB_OUTPUT
@@ -460,6 +464,7 @@ jobs:
         id: Multi-thread
         run: |
           cd openwrt
+          export LDFLAGS="$LDFLAGS -lssp"
           echo -e "$(($(nproc) + 1)) thread compile"
           make -j$(($(nproc) + 1))
           echo "status=success" >> $GITHUB_OUTPUT
@@ -476,6 +481,7 @@ jobs:
         if: failure()
         run: |
           cd openwrt
+          export LDFLAGS="$LDFLAGS -lssp"
           make -j1 V=s
           echo "status=success" >> $GITHUB_OUTPUT
           DEVICE_NAME=$(grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' | tr -d '\n')
