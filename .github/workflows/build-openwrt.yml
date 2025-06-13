@@ -298,10 +298,8 @@ jobs:
            KERNEL_CONFIG_DIR="build_dir/target-x86_64_musl/linux-x86_64/linux-${LINUX_VERSION}"
            if [ ! -f "${KERNEL_CONFIG_DIR}/.config" ]; then
            echo "Kernel .config 文件缺失，尝试重新生成"
-           make toolchain/clean
            make target/linux/clean
            make package/linux/clean
-           make -j$(($(nproc) + 1)) toolchain/compile
            make -j$(($(nproc) + 1)) target/linux/compile
            make -j$(($(nproc) + 1)) package/linux/compile
            fi
@@ -452,10 +450,8 @@ jobs:
            KERNEL_CONFIG_DIR="build_dir/target-x86_64_musl/linux-x86_64/linux-${LINUX_VERSION}"
            if [ ! -f "${KERNEL_CONFIG_DIR}/.config" ]; then
            echo "Kernel .config 文件缺失，尝试重新生成"
-           make toolchain/clean
            make target/linux/clean
            make package/linux/clean
-           make -j$(($(nproc) + 1)) toolchain/compile
            make -j$(($(nproc) + 1)) target/linux/compile
            make -j$(($(nproc) + 1)) package/linux/compile
            fi
