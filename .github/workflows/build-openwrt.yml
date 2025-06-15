@@ -153,8 +153,8 @@ jobs:
         run: |
           cd openwrt
           echo -e "$(($(nproc) + 1)) thread compile"
-          make -j$(($(nproc) + 1)) tools/compile CFLAGS="-D_FORTIFY_SOURCE=0"
-          make -j$(($(nproc) + 1)) toolchain/compile CFLAGS="-D_FORTIFY_SOURCE=0"
+          make -j$(($(nproc) + 1)) tools/compile
+          make -j$(($(nproc) + 1)) toolchain/compile
           make -j$(($(nproc) + 1)) target/linux/compile
           make -j$(($(nproc) + 1)) package/{node,golang,python3,php8,ruby,perl,rust,jq,docker}/compile
           echo "status=success" >> $GITHUB_OUTPUT
@@ -171,8 +171,8 @@ jobs:
         if: failure()
         run: |
           cd openwrt
-          make -j1 tools/compile V=s CFLAGS="-D_FORTIFY_SOURCE=0"
-          make -j1 toolchain/compile V=s CFLAGS="-D_FORTIFY_SOURCE=0"
+          make -j1 tools/compile V=s
+          make -j1 toolchain/compile V=s
           make -j1 target/linux/compile V=s
           make -j1 package/{node,golang,python3,php8,ruby,perl,rust,jq,docker}/compile V=s
           echo "status=success" >> $GITHUB_OUTPUT
@@ -455,6 +455,11 @@ jobs:
            make -j$(($(nproc) + 1)) target/linux/compile
            make -j$(($(nproc) + 1)) package/linux/compile
            fi
+
+      - name: Clean build cache
+        run: |
+           rm -rf openwrt/build_dir/toolchain-*
+           make toolchain/binutils/clean
            
       - name: Multi-thread compile
         id: Multi-thread
