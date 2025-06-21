@@ -461,7 +461,9 @@ jobs:
 
       - name: Clean build cache
         run: |
-           rm -rf openwrt/build_dir/toolchain-*
+           cd openwrt
+           make clean toolchain
+           rm -rf build_dir/toolchain-* staging_dir/toolchain-*
            
       - name: Multi-thread compile
         id: Multi-thread
