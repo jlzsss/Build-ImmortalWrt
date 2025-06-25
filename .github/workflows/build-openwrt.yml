@@ -348,7 +348,7 @@ jobs:
       - name: Store build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: prepare-build-output
+          name: build-build-output
           path: |
             staging_dir.tar.gz
             build_dir.tar.gz
