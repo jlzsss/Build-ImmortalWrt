@@ -95,10 +95,9 @@ jobs:
           sudo swapoff /mnt/swapfile
           sudo rm -rf /mnt/swapfile
           sudo chmod 777 /mnt
-          sudo mkdir -p -m 777 openwrt/build_dir /mnt/openwrt/dl /mnt/openwrt/staging_dir /mnt/openwrt/build_dir /mnt/openwrt/tmp /mnt/openwrt/bin
+          sudo mkdir -p -m 777 openwrt/build_dir /mnt/openwrt/dl /mnt/openwrt/staging_dir /mnt/openwrt/build_dir /mnt/openwrt/bin
           ln -sf /mnt/openwrt/dl openwrt/dl
           ln -sf /mnt/openwrt/bin openwrt/bin
-          ln -sf /mnt/openwrt/tmp openwrt/tmp
           ln -sf /mnt/openwrt/staging_dir openwrt/staging_dir
           ln -sf /mnt/openwrt/build_dir openwrt/build_dir
           df -hT
@@ -186,10 +185,9 @@ jobs:
 
       - name: Compress directory
         run: |
-          sudo rm -rf /workdir/openwrt/dl /workdir/openwrt/tmp /workdir/openwrt/build_dir /workdir/openwrt/staging_dir /workdir/openwrt/bin
+          sudo rm -rf /workdir/openwrt/dl /workdir/openwrt/build_dir /workdir/openwrt/staging_dir /workdir/openwrt/bin
           tar -czf staging_dir.tar.gz /mnt/openwrt/staging_dir && sudo rm -rf /mnt/openwrt/staging_dir
           tar -czf build_dir.tar.gz /mnt/openwrt/build_dir && sudo rm -rf /mnt/openwrt/build_dir
-          tar -czf tmp.tar.gz /mnt/openwrt/tmp && sudo rm -rf /mnt/openwrt/tmp
           tar -czf dl.tar.gz /mnt/openwrt/dl && sudo rm -rf /mnt/openwrt/dl
           tar -czf bin.tar.gz /mnt/openwrt/bin && sudo rm -rf /mnt/openwrt/bin
           tar -czf openwrt.tar.gz /workdir/openwrt && sudo rm -rf /workdir/openwrt
@@ -203,7 +201,6 @@ jobs:
             staging_dir.tar.gz
             build_dir.tar.gz
             dl.tar.gz
-            tmp.tar.gz
             bin.tar.gz
             openwrt.tar.gz
 
@@ -268,10 +265,9 @@ jobs:
           sudo swapoff /mnt/swapfile
           sudo rm -rf /mnt/swapfile
           sudo chmod 777 /mnt
-          sudo mkdir -p -m 777 openwrt/build_dir /mnt/openwrt/dl /mnt/openwrt/staging_dir /mnt/openwrt/build_dir /mnt/openwrt/tmp /mnt/openwrt/bin
+          sudo mkdir -p -m 777 openwrt/build_dir /mnt/openwrt/dl /mnt/openwrt/staging_dir /mnt/openwrt/build_dir /mnt/openwrt/bin
           ln -sf /mnt/openwrt/dl openwrt/dl
           ln -sf /mnt/openwrt/bin openwrt/bin
-          ln -sf /mnt/openwrt/tmp openwrt/tmp
           ln -sf /mnt/openwrt/staging_dir openwrt/staging_dir
           ln -sf /mnt/openwrt/build_dir openwrt/build_dir
           df -hT
@@ -281,18 +277,15 @@ jobs:
           cd /workdir && tar -xzf build_dir.tar.gz -C /mnt/openwrt/build_dir --strip-components=3 && rm build_dir.tar.gz
           cd /workdir && tar -xzf dl.tar.gz -C /mnt/openwrt/dl --strip-components=3 && rm dl.tar.gz
           cd /workdir && tar -xzf staging_dir.tar.gz -C /mnt/openwrt/staging_dir --strip-components=3 && rm staging_dir.tar.gz
-          cd /workdir && tar -xzf tmp.tar.gz -C /mnt/openwrt/tmp --strip-components=3 && rm tmp.tar.gz
           cd /workdir && tar -xzf bin.tar.gz -C /mnt/openwrt/bin --strip-components=3 && rm bin.tar.gz
           
       - name: Move files
         run: |
           rsync -av /workdir/openwrt/dl/ /mnt/openwrt/dl/ && rm -rf /workdir/openwrt/dl
-          rsync -av /workdir/openwrt/tmp/ /mnt/openwrt/tmp/ && rm -rf /workdir/openwrt/tmp
           rsync -av /workdir/openwrt/bin/ /mnt/openwrt/bin/ && rm -rf /workdir/openwrt/bin
           rsync -av /workdir/openwrt/build_dir/ /mnt/openwrt/build_dir/ && rm -rf /workdir/openwrt/build_dir
           rsync -av /workdir/openwrt/staging_dir/ /mnt/openwrt/staging_dir/ && rm -rf /workdir/openwrt/staging_dir
           ln -sf /mnt/openwrt/dl /workdir/openwrt/dl
-          ln -sf /mnt/openwrt/tmp /workdir/openwrt/tmp
           ln -sf /mnt/openwrt/bin /workdir/openwrt/bin
           ln -sf /mnt/openwrt/build_dir /workdir/openwrt/build_dir
           ln -sf /mnt/openwrt/staging_dir /workdir/openwrt/staging_dir
@@ -344,10 +337,9 @@ jobs:
 
       - name: Compress directory
         run: |
-          sudo rm -rf /workdir/openwrt/dl /workdir/openwrt/tmp /workdir/openwrt/build_dir /workdir/openwrt/staging_dir /workdir/openwrt/bin
+          sudo rm -rf /workdir/openwrt/dl /workdir/openwrt/build_dir /workdir/openwrt/staging_dir /workdir/openwrt/bin
           tar -czf staging_dir.tar.gz /mnt/openwrt/staging_dir && sudo rm -rf /mnt/openwrt/staging_dir
           tar -czf build_dir.tar.gz /mnt/openwrt/build_dir && sudo rm -rf /mnt/openwrt/build_dir
-          tar -czf tmp.tar.gz /mnt/openwrt/tmp && sudo rm -rf /mnt/openwrt/tmp
           tar -czf dl.tar.gz /mnt/openwrt/dl && sudo rm -rf /mnt/openwrt/dl
           tar -czf bin.tar.gz /mnt/openwrt/bin && sudo rm -rf /mnt/openwrt/bin
           tar -czf openwrt.tar.gz /workdir/openwrt && sudo rm -rf /workdir/openwrt
@@ -361,7 +353,6 @@ jobs:
             staging_dir.tar.gz
             build_dir.tar.gz
             dl.tar.gz
-            tmp.tar.gz
             bin.tar.gz
             openwrt.tar.gz
 
@@ -426,10 +417,9 @@ jobs:
           sudo swapoff /mnt/swapfile
           sudo rm -rf /mnt/swapfile
           sudo chmod 777 /mnt
-          sudo mkdir -p -m 777 openwrt/build_dir /mnt/openwrt/dl /mnt/openwrt/staging_dir /mnt/openwrt/build_dir /mnt/openwrt/tmp /mnt/openwrt/bin
+          sudo mkdir -p -m 777 openwrt/build_dir /mnt/openwrt/dl /mnt/openwrt/staging_dir /mnt/openwrt/build_dir /mnt/openwrt/bin
           ln -sf /mnt/openwrt/dl openwrt/dl
           ln -sf /mnt/openwrt/bin openwrt/bin
-          ln -sf /mnt/openwrt/tmp openwrt/tmp
           ln -sf /mnt/openwrt/staging_dir openwrt/staging_dir
           ln -sf /mnt/openwrt/build_dir openwrt/build_dir
           df -hT
@@ -439,18 +429,15 @@ jobs:
           cd /workdir && tar -xzf build_dir.tar.gz -C /mnt/openwrt/build_dir --strip-components=3 && rm build_dir.tar.gz
           cd /workdir && tar -xzf dl.tar.gz -C /mnt/openwrt/dl --strip-components=3 && rm dl.tar.gz
           cd /workdir && tar -xzf staging_dir.tar.gz -C /mnt/openwrt/staging_dir --strip-components=3 && rm staging_dir.tar.gz
-          cd /workdir && tar -xzf tmp.tar.gz -C /mnt/openwrt/tmp --strip-components=3 && rm tmp.tar.gz
           cd /workdir && tar -xzf bin.tar.gz -C /mnt/openwrt/bin --strip-components=3 && rm bin.tar.gz
           
       - name: Move files
         run: |
           rsync -av /workdir/openwrt/dl/ /mnt/openwrt/dl/ && rm -rf /workdir/openwrt/dl
-          rsync -av /workdir/openwrt/tmp/ /mnt/openwrt/tmp/ && rm -rf /workdir/openwrt/tmp
           rsync -av /workdir/openwrt/bin/ /mnt/openwrt/bin/ && rm -rf /workdir/openwrt/bin
           rsync -av /workdir/openwrt/build_dir/ /mnt/openwrt/build_dir/ && rm -rf /workdir/openwrt/build_dir
           rsync -av /workdir/openwrt/staging_dir/ /mnt/openwrt/staging_dir/ && rm -rf /workdir/openwrt/staging_dir
           ln -sf /mnt/openwrt/dl /workdir/openwrt/dl
-          ln -sf /mnt/openwrt/tmp /workdir/openwrt/tmp
           ln -sf /mnt/openwrt/bin /workdir/openwrt/bin
           ln -sf /mnt/openwrt/build_dir /workdir/openwrt/build_dir
           ln -sf /mnt/openwrt/staging_dir /workdir/openwrt/staging_dir
