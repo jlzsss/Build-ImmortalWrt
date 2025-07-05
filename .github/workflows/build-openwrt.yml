@@ -1,4 +1,4 @@
-name: Build-ImmortalWrt
+name: Build-OpenWrt
 
 on:
   repository_dispatch:
@@ -15,7 +15,7 @@ on:
 env:
   REPO_URL: https://github.com/immortalwrt/immortalwrt
   REPO_BRANCH: openwrt-24.10
-  CHOOSE_VERSION: v24.10.1
+  CHOOSE_VERSION: v24.10.2
   FEEDS_CONF: feeds.conf.default
   CONFIG_FILE: .config
   DIY_P1_SH: diy-part1.sh
@@ -33,7 +33,7 @@ env:
 
 jobs:
   prepare:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@main
@@ -52,7 +52,7 @@ jobs:
           sudo -E apt-get -y purge azure-cli* docker* ghc* zulu* llvm* firefox google* dotnet* openjdk* mysql* php* mongodb* dotnet* snap*
           sudo -E apt-get update -y
           sudo -E apt-get full-upgrade -y
-          sudo -E apt-get install -y ack antlr3 asciidoc autoconf automake autopoint binutils bison build-essential bzip2 clang ccache cmake cpio curl device-tree-compiler fastjar flex gawk gettext gcc-multilib g++-multilib git gperf haveged help2man intltool libc6-dev-i386 libelf-dev libglib2.0-dev libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev libncurses5-dev libncursesw5-dev libreadline-dev libssl-dev libtool lrzsz mkisofs msmtp nano ninja-build p7zip p7zip-full patch pkgconf python2.7 python3 python3-pyelftools libpython3-dev qemu-utils rsync scons squashfs-tools subversion swig texinfo uglifyjs upx-ucl unzip vim wget xmlto xxd zlib1g-dev
+          sudo -E apt-get install -y build-essential flex bison cmake g++ gawk gcc-multilib g++-multilib gettext git gnutls-dev libfuse-dev libncurses5-dev libssl-dev python3 python3-pip python3-ply python3-pyelftools rsync unzip zlib1g-dev file wget subversion patch upx-ucl autoconf automake curl asciidoc binutils bzip2 lib32gcc-s1 libc6-dev-i386 uglifyjs msmtp texinfo libreadline-dev libglib2.0-dev xmlto libelf-dev libtool autopoint antlr3 gperf ccache swig coreutils haveged scons libpython3-dev rename qemu-utils jq
           sudo -E apt-get autoremove --purge
           sudo -E apt-get clean
           sudo timedatectl set-timezone "$TZ"
@@ -95,8 +95,9 @@ jobs:
           sudo swapoff /mnt/swapfile
           sudo rm -rf /mnt/swapfile
           sudo chmod 777 /mnt
-          sudo mkdir -p -m 777 openwrt/build_dir /mnt/openwrt/dl /mnt/openwrt/staging_dir /mnt/openwrt/build_dir
+          sudo mkdir -p -m 777 openwrt/build_dir /mnt/openwrt/dl /mnt/openwrt/staging_dir /mnt/openwrt/build_dir /mnt/openwrt/tmp
           ln -sf /mnt/openwrt/dl openwrt/dl
+          ln -sf /mnt/openwrt/tmp openwrt/tmp
           ln -sf /mnt/openwrt/staging_dir openwrt/staging_dir
           ln -sf /mnt/openwrt/build_dir openwrt/build_dir
           df -hT
@@ -155,14 +156,11 @@ jobs:
           make -j$(($(nproc) + 1)) tools/compile
           make -j$(($(nproc) + 1)) toolchain/compile
           make -j$(($(nproc) + 1)) target/linux/compile
-          make -j$(($(nproc) + 1)) package/{node,golang,python3,php8,ruby,perl,rust,jq,docker}/compile
-          echo "status=success" >> $GITHUB_OUTPUT
-          DEVICE_NAME=$(grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' | tr -d '\n')
-          if [ -n "$DEVICE_NAME" ]; then
-            echo "DEVICE_NAME=_$DEVICE_NAME" >> $GITHUB_ENV
-          fi
-          FILE_DATE=$(date +"%Y%m%d%H%M")
-          echo "FILE_DATE=_$FILE_DATE" >> $GITHUB_ENV
+          make -j$(($(nproc) + 1)) package/{node,python3,golang,php8,ruby,perl,rust,jq,docker}/compile
+          echo "::set-output name=status::success"
+          grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
+          [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
+          echo "FILE_DATE=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
           df -hT
           
       - name: Single-thread compile
@@ -173,22 +171,20 @@ jobs:
           make -j1 tools/compile V=s
           make -j1 toolchain/compile V=s
           make -j1 target/linux/compile V=s
-          make -j1 package/{node,golang,python3,php8,ruby,perl,rust,jq,docker}/compile V=s
-          echo "status=success" >> $GITHUB_OUTPUT
-          DEVICE_NAME=$(grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' | tr -d '\n')
-          if [ -n "$DEVICE_NAME" ]; then
-            echo "DEVICE_NAME=_$DEVICE_NAME" >> $GITHUB_ENV
-          fi
-          FILE_DATE=$(date +"%Y%m%d%H%M")
-          echo "FILE_DATE=_$FILE_DATE" >> $GITHUB_ENV
+          make -j1 package/{node,python3,golang,php8,ruby,perl,rust,jq,docker}/compile V=s
+          echo "::set-output name=status::success"
+          grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
+          [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
+          echo "FILE_DATE=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
 
       - name: Compress directory
         run: |
-          sudo rm -rf /workdir/openwrt/dl /workdir/openwrt/build_dir /workdir/openwrt/staging_dir
-          tar -czf staging_dir.tar.gz /mnt/openwrt/staging_dir && sudo rm -rf /mnt/openwrt/staging_dir
-          tar -czf build_dir.tar.gz /mnt/openwrt/build_dir && sudo rm -rf /mnt/openwrt/build_dir
-          tar -czf dl.tar.gz /mnt/openwrt/dl && sudo rm -rf /mnt/openwrt/dl
-          tar -czf openwrt.tar.gz /workdir/openwrt && sudo rm -rf /workdir/openwrt
+          sudo rm -rf /workdir/openwrt/dl /workdir/openwrt/tmp /workdir/openwrt/build_dir /workdir/openwrt/staging_dir
+          bsdtar -czlf staging_dir.tar.gz /mnt/openwrt/staging_dir && sudo rm -rf /mnt/openwrt/staging_dir
+          bsdtar -czlf build_dir.tar.gz /mnt/openwrt/build_dir && sudo rm -rf /mnt/openwrt/build_dir
+          bsdtar -czlf tmp.tar.gz /mnt/openwrt/tmp && sudo rm -rf /mnt/openwrt/tmp
+          bsdtar -czlf dl.tar.gz /mnt/openwrt/dl && sudo rm -rf /mnt/openwrt/dl
+          bsdtar -czlf openwrt.tar.gz /workdir/openwrt && sudo rm -rf /workdir/openwrt
           df -hT
 
       - name: Store build artifacts
@@ -199,6 +195,7 @@ jobs:
             staging_dir.tar.gz
             build_dir.tar.gz
             dl.tar.gz
+            tmp.tar.gz
             openwrt.tar.gz
 
       - name: WeChat notification
@@ -213,9 +210,9 @@ jobs:
           curl -s -o /dev/null http://www.pushplus.plus/send --data "token=${{ secrets.PUSHPLUS_TOKEN }}&content=OpenWrt第一部分编译失败"
           # curl https://sc.ftqq.com/${{ secrets.SCKEY }}.send?text=OpenWrt第一部分编译失败
 
-  build:
+  build1:
     needs: prepare
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@main
@@ -229,7 +226,7 @@ jobs:
           sudo -E apt-get -y purge azure-cli* docker* ghc* zulu* llvm* firefox google* dotnet* openjdk* mysql* php* mongodb* dotnet* snap*
           sudo -E apt-get update -y
           sudo -E apt-get full-upgrade -y
-          sudo -E apt-get install -y ack antlr3 asciidoc autoconf automake autopoint binutils bison build-essential bzip2 clang ccache cmake cpio curl device-tree-compiler fastjar flex gawk gettext gcc-multilib g++-multilib git gperf haveged help2man intltool libc6-dev-i386 libelf-dev libglib2.0-dev libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev libncurses5-dev libncursesw5-dev libreadline-dev libssl-dev libtool lrzsz mkisofs msmtp nano ninja-build p7zip p7zip-full patch pkgconf python2.7 python3 python3-pyelftools libpython3-dev qemu-utils rsync scons squashfs-tools subversion swig texinfo uglifyjs upx-ucl unzip vim wget xmlto xxd zlib1g-dev
+          sudo -E apt-get install -y build-essential flex bison cmake g++ gawk gcc-multilib g++-multilib gettext git gnutls-dev libfuse-dev libncurses5-dev libssl-dev python3 python3-pip python3-ply python3-pyelftools rsync unzip zlib1g-dev file wget subversion patch upx-ucl autoconf automake curl asciidoc binutils bzip2 lib32gcc-s1 libc6-dev-i386 uglifyjs msmtp texinfo libreadline-dev libglib2.0-dev xmlto libelf-dev libtool autopoint antlr3 gperf ccache swig coreutils haveged scons libpython3-dev rename qemu-utils jq
           sudo -E apt-get autoremove --purge
           sudo -E apt-get clean
           sudo timedatectl set-timezone "$TZ"
@@ -249,7 +246,7 @@ jobs:
         run: |
           cd /workdir
           mkdir -p openwrt
-          tar -xzf openwrt.tar.gz -C /workdir/openwrt --strip-components=2 && rm openwrt.tar.gz
+          bsdtar -xzf openwrt.tar.gz -C /workdir/openwrt --strip-components=2 && rm openwrt.tar.gz
           ln -sf /workdir/openwrt ${{ github.workspace }}/openwrt
           curl -s -o /dev/null http://www.pushplus.plus/send --data "token=${{ secrets.PUSHPLUS_TOKEN }}&content=OpenWrt开始编译第二部分"
           # curl https://sc.ftqq.com/${{ secrets.SCKEY }}.send?text=OpenWrt开始编译第二部分
@@ -262,33 +259,42 @@ jobs:
           sudo swapoff /mnt/swapfile
           sudo rm -rf /mnt/swapfile
           sudo chmod 777 /mnt
-          sudo mkdir -p -m 777 openwrt/build_dir /mnt/openwrt/dl /mnt/openwrt/staging_dir /mnt/openwrt/build_dir
+          sudo mkdir -p -m 777 openwrt/build_dir /mnt/openwrt/dl /mnt/openwrt/staging_dir /mnt/openwrt/build_dir /mnt/openwrt/tmp
           ln -sf /mnt/openwrt/dl openwrt/dl
+          ln -sf /mnt/openwrt/tmp openwrt/tmp
           ln -sf /mnt/openwrt/staging_dir openwrt/staging_dir
           ln -sf /mnt/openwrt/build_dir openwrt/build_dir
           df -hT
 
       - name: Unzip artifact
         run: |
-          cd /workdir && tar -xzf build_dir.tar.gz -C /mnt/openwrt/build_dir --strip-components=3 && rm build_dir.tar.gz
-          cd /workdir && tar -xzf dl.tar.gz -C /mnt/openwrt/dl --strip-components=3 && rm dl.tar.gz
-          cd /workdir && tar -xzf staging_dir.tar.gz -C /mnt/openwrt/staging_dir --strip-components=3 && rm staging_dir.tar.gz
-          
+          cd /workdir && bsdtar -xzf build_dir.tar.gz -C /mnt/openwrt/build_dir --strip-components=3 && rm build_dir.tar.gz
+          cd /workdir && bsdtar -xzf dl.tar.gz -C /mnt/openwrt/dl --strip-components=3 && rm dl.tar.gz
+          cd /workdir && bsdtar -xzf staging_dir.tar.gz -C /mnt/openwrt/staging_dir --strip-components=3 && rm staging_dir.tar.gz
+          cd /workdir && bsdtar -xzf tmp.tar.gz -C /mnt/openwrt/tmp --strip-components=3 && rm tmp.tar.gz
+
       - name: Move files
         run: |
+          # 使用rsync同步目录并清理原目录
           rsync -av /workdir/openwrt/dl/ /mnt/openwrt/dl/ && rm -rf /workdir/openwrt/dl
+          rsync -av /workdir/openwrt/tmp/ /mnt/openwrt/tmp/ && rm -rf /workdir/openwrt/tmp
           rsync -av /workdir/openwrt/build_dir/ /mnt/openwrt/build_dir/ && rm -rf /workdir/openwrt/build_dir
           rsync -av /workdir/openwrt/staging_dir/ /mnt/openwrt/staging_dir/ && rm -rf /workdir/openwrt/staging_dir
+          # 创建符号链接保持路径映射
           ln -sf /mnt/openwrt/dl /workdir/openwrt/dl
+          ln -sf /mnt/openwrt/tmp /workdir/openwrt/tmp
           ln -sf /mnt/openwrt/build_dir /workdir/openwrt/build_dir
           ln -sf /mnt/openwrt/staging_dir /workdir/openwrt/staging_dir
           df -hT
 
+
       - name: Fix kernel config missing issue
         run: |
            cd openwrt
+           # 从配置文件中获取 Linux 内核版本号
            LINUX_VERSION=$(grep '^CONFIG_LINUX_' .config | sed -r 's/^CONFIG_LINUX_([0-9\.]+)=y/\1/')
            KERNEL_CONFIG_DIR="build_dir/target-x86_64_musl/linux-x86_64/linux-${LINUX_VERSION}"
+           # 确保 kernel 配置文件存在
            if [ ! -f "${KERNEL_CONFIG_DIR}/.config" ]; then
            echo "Kernel .config 文件缺失，尝试重新生成"
            make target/linux/clean
@@ -304,13 +310,10 @@ jobs:
           echo -e "$(($(nproc) + 1)) thread compile"
           make -j$(($(nproc) + 1)) package/luci/compile
           make -j$(($(nproc) + 1)) package/{luci-app-qbittorrent,luci-app-passwall,luci-app-shadowsocksr,luci-app-vssr,luci-app-adblock-fast,luci-app-adbyby-plus,luci-app-adguardhome,luci-app-transmission,luci-app-aria2,luci-app-bypass,luci-app-homeproxy,luci-app-kcptun,luci-app-openclash,luci-app-passwall2,luci-app-smartdns,luci-app-ssr-plus,luci-app-store,luci-app-trojan,luci-app-v2ray,luci-app-v2raya}/compile
-          echo "status=success" >> $GITHUB_OUTPUT
-          DEVICE_NAME=$(grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' | tr -d '\n')
-          if [ -n "$DEVICE_NAME" ]; then
-            echo "DEVICE_NAME=_$DEVICE_NAME" >> $GITHUB_ENV
-          fi
-          FILE_DATE=$(date +"%Y%m%d%H%M")
-          echo "FILE_DATE=_$FILE_DATE" >> $GITHUB_ENV
+          echo "::set-output name=status::success"
+          grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
+          [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
+          echo "FILE_DATE=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
           df -hT
           
       - name: Single-thread compile
@@ -320,31 +323,30 @@ jobs:
           cd openwrt
           make -j1 package/luci/compile V=s
           make -j1 package/{luci-app-qbittorrent,luci-app-passwall,luci-app-shadowsocksr,luci-app-vssr,luci-app-adblock-fast,luci-app-adbyby-plus,luci-app-adguardhome,luci-app-transmission,luci-app-aria2,luci-app-bypass,luci-app-homeproxy,luci-app-kcptun,luci-app-openclash,luci-app-passwall2,luci-app-smartdns,luci-app-ssr-plus,luci-app-store,luci-app-trojan,luci-app-v2ray,luci-app-v2raya}/compile V=s
-          echo "status=success" >> $GITHUB_OUTPUT
-          DEVICE_NAME=$(grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' | tr -d '\n')
-          if [ -n "$DEVICE_NAME" ]; then
-            echo "DEVICE_NAME=_$DEVICE_NAME" >> $GITHUB_ENV
-          fi
-          FILE_DATE=$(date +"%Y%m%d%H%M")
-          echo "FILE_DATE=_$FILE_DATE" >> $GITHUB_ENV
+          echo "::set-output name=status::success"
+          grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
+          [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
+          echo "FILE_DATE=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
 
       - name: Compress directory
         run: |
-          sudo rm -rf /workdir/openwrt/dl /workdir/openwrt/build_dir /workdir/openwrt/staging_dir
-          tar -czf staging_dir.tar.gz /mnt/openwrt/staging_dir && sudo rm -rf /mnt/openwrt/staging_dir
-          tar -czf build_dir.tar.gz /mnt/openwrt/build_dir && sudo rm -rf /mnt/openwrt/build_dir
-          tar -czf dl.tar.gz /mnt/openwrt/dl && sudo rm -rf /mnt/openwrt/dl
-          tar -czf openwrt.tar.gz /workdir/openwrt && sudo rm -rf /workdir/openwrt
+          sudo rm -rf /workdir/openwrt/dl /workdir/openwrt/tmp /workdir/openwrt/build_dir /workdir/openwrt/staging_dir
+          bsdtar -czlf staging_dir.tar.gz /mnt/openwrt/staging_dir && sudo rm -rf /mnt/openwrt/staging_dir
+          bsdtar -czlf build_dir.tar.gz /mnt/openwrt/build_dir && sudo rm -rf /mnt/openwrt/build_dir
+          bsdtar -czlf tmp.tar.gz /mnt/openwrt/tmp && sudo rm -rf /mnt/openwrt/tmp
+          bsdtar -czlf dl.tar.gz /mnt/openwrt/dl && sudo rm -rf /mnt/openwrt/dl
+          bsdtar -czlf openwrt.tar.gz /workdir/openwrt && sudo rm -rf /workdir/openwrt
           df -hT
 
       - name: Store build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: build-build-output
+          name: build1-build-output
           path: |
             staging_dir.tar.gz
             build_dir.tar.gz
             dl.tar.gz
+            tmp.tar.gz
             openwrt.tar.gz
 
       - name: WeChat notification
@@ -359,9 +361,9 @@ jobs:
           curl -s -o /dev/null http://www.pushplus.plus/send --data "token=${{ secrets.PUSHPLUS_TOKEN }}&content=OpenWrt第二部分编译失败"
           # curl https://sc.ftqq.com/${{ secrets.SCKEY }}.send?text=OpenWrt第二部分编译失败
 
-  uploads:
-    needs: build
-    runs-on: ubuntu-22.04
+  build2:
+    needs: build1
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@main
@@ -375,7 +377,7 @@ jobs:
           sudo -E apt-get -y purge azure-cli* docker* ghc* zulu* llvm* firefox google* dotnet* openjdk* mysql* php* mongodb* dotnet* snap*
           sudo -E apt-get update -y
           sudo -E apt-get full-upgrade -y
-          sudo -E apt-get install -y ack antlr3 asciidoc autoconf automake autopoint binutils bison build-essential bzip2 clang ccache cmake cpio curl device-tree-compiler fastjar flex gawk gettext gcc-multilib g++-multilib git gperf haveged help2man intltool libc6-dev-i386 libelf-dev libglib2.0-dev libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev libncurses5-dev libncursesw5-dev libreadline-dev libssl-dev libtool lrzsz mkisofs msmtp nano ninja-build p7zip p7zip-full patch pkgconf python2.7 python3 python3-pyelftools libpython3-dev qemu-utils rsync scons squashfs-tools subversion swig texinfo uglifyjs upx-ucl unzip vim wget xmlto xxd zlib1g-dev
+          sudo -E apt-get install -y build-essential flex bison cmake g++ gawk gcc-multilib g++-multilib gettext git gnutls-dev libfuse-dev libncurses5-dev libssl-dev python3 python3-pip python3-ply python3-pyelftools rsync unzip zlib1g-dev file wget subversion patch upx-ucl autoconf automake curl asciidoc binutils bzip2 lib32gcc-s1 libc6-dev-i386 uglifyjs msmtp texinfo libreadline-dev libglib2.0-dev xmlto libelf-dev libtool autopoint antlr3 gperf ccache swig coreutils haveged scons libpython3-dev rename qemu-utils jq
           sudo -E apt-get autoremove --purge
           sudo -E apt-get clean
           sudo timedatectl set-timezone "$TZ"
@@ -387,7 +389,7 @@ jobs:
       - name: Download artifacts
         uses: actions/download-artifact@v4
         with:
-          name: build-build-output
+          name: build1-build-output
           path: /workdir
 
       - name: WeChat notification
@@ -395,7 +397,157 @@ jobs:
         run: |
           cd /workdir
           mkdir -p openwrt
-          tar -xzf openwrt.tar.gz -C /workdir/openwrt --strip-components=2 && rm openwrt.tar.gz
+          bsdtar -xzf openwrt.tar.gz -C /workdir/openwrt --strip-components=2 && rm openwrt.tar.gz
+          ln -sf /workdir/openwrt ${{ github.workspace }}/openwrt
+          curl -s -o /dev/null http://www.pushplus.plus/send --data "token=${{ secrets.PUSHPLUS_TOKEN }}&content=OpenWrt开始编译第三部分"
+          # curl https://sc.ftqq.com/${{ secrets.SCKEY }}.send?text=OpenWrt开始编译第三部分
+
+      - name: Free up disk space
+        if: env.FREE_UP_DISK == 'true'
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          sudo swapoff /mnt/swapfile
+          sudo rm -rf /mnt/swapfile
+          sudo chmod 777 /mnt
+          sudo mkdir -p -m 777 openwrt/build_dir /mnt/openwrt/dl /mnt/openwrt/staging_dir /mnt/openwrt/build_dir /mnt/openwrt/tmp
+          ln -sf /mnt/openwrt/dl openwrt/dl
+          ln -sf /mnt/openwrt/tmp openwrt/tmp
+          ln -sf /mnt/openwrt/staging_dir openwrt/staging_dir
+          ln -sf /mnt/openwrt/build_dir openwrt/build_dir
+          df -hT
+
+      - name: Unzip artifact
+        run: |
+          cd /workdir && bsdtar -xzf build_dir.tar.gz -C /mnt/openwrt/build_dir --strip-components=3 && rm build_dir.tar.gz
+          cd /workdir && bsdtar -xzf dl.tar.gz -C /mnt/openwrt/dl --strip-components=3 && rm dl.tar.gz
+          cd /workdir && bsdtar -xzf staging_dir.tar.gz -C /mnt/openwrt/staging_dir --strip-components=3 && rm staging_dir.tar.gz
+          cd /workdir && bsdtar -xzf tmp.tar.gz -C /mnt/openwrt/tmp --strip-components=3 && rm tmp.tar.gz
+
+      - name: Move files
+        run: |
+          # 使用rsync同步目录并清理原目录
+          rsync -av /workdir/openwrt/dl/ /mnt/openwrt/dl/ && rm -rf /workdir/openwrt/dl
+          rsync -av /workdir/openwrt/tmp/ /mnt/openwrt/tmp/ && rm -rf /workdir/openwrt/tmp
+          rsync -av /workdir/openwrt/build_dir/ /mnt/openwrt/build_dir/ && rm -rf /workdir/openwrt/build_dir
+          rsync -av /workdir/openwrt/staging_dir/ /mnt/openwrt/staging_dir/ && rm -rf /workdir/openwrt/staging_dir
+          # 创建符号链接保持路径映射
+          ln -sf /mnt/openwrt/dl /workdir/openwrt/dl
+          ln -sf /mnt/openwrt/tmp /workdir/openwrt/tmp
+          ln -sf /mnt/openwrt/build_dir /workdir/openwrt/build_dir
+          ln -sf /mnt/openwrt/staging_dir /workdir/openwrt/staging_dir
+          df -hT
+
+      - name: Fix kernel config missing issue
+        run: |
+           cd openwrt
+           # 从配置文件中获取 Linux 内核版本号
+           LINUX_VERSION=$(grep '^CONFIG_LINUX_' .config | sed -r 's/^CONFIG_LINUX_([0-9\.]+)=y/\1/')
+           KERNEL_CONFIG_DIR="build_dir/target-x86_64_musl/linux-x86_64/linux-${LINUX_VERSION}"
+           # 确保 kernel 配置文件存在
+           if [ ! -f "${KERNEL_CONFIG_DIR}/.config" ]; then
+           echo "Kernel .config 文件缺失，尝试重新生成"
+           make target/linux/clean
+           make package/linux/clean
+           make -j$(($(nproc) + 1)) target/linux/compile
+           make -j$(($(nproc) + 1)) package/linux/compile
+           fi
+          
+      - name: Multi-thread compile
+        id: Multi-thread
+        run: |
+          cd openwrt
+          echo -e "$(($(nproc) + 1)) thread compile"
+          make package/compile -j$(($(nproc) + 1))
+          make package/index -j$(($(nproc) + 1))
+          echo "::set-output name=status::success"
+          grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
+          [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
+          echo "FILE_DATE=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
+          df -hT
+          
+      - name: Single-thread compile
+        id: Single-thread
+        if: failure()
+        run: |
+          cd openwrt
+          make -j1 package/compile V=s
+          make -j1 package/index V=s
+          echo "::set-output name=status::success"
+          grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
+          [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
+          echo "FILE_DATE=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
+
+      - name: Compress directory
+        run: |
+          sudo rm -rf /workdir/openwrt/dl /workdir/openwrt/tmp /workdir/openwrt/build_dir /workdir/openwrt/staging_dir
+          bsdtar -czlf staging_dir.tar.gz /mnt/openwrt/staging_dir && sudo rm -rf /mnt/openwrt/staging_dir
+          bsdtar -czlf build_dir.tar.gz /mnt/openwrt/build_dir && sudo rm -rf /mnt/openwrt/build_dir
+          bsdtar -czlf tmp.tar.gz /mnt/openwrt/tmp && sudo rm -rf /mnt/openwrt/tmp
+          bsdtar -czlf dl.tar.gz /mnt/openwrt/dl && sudo rm -rf /mnt/openwrt/dl
+          bsdtar -czlf openwrt.tar.gz /workdir/openwrt && sudo rm -rf /workdir/openwrt
+          df -hT
+
+      - name: Store build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build2-build-output
+          path: |
+            staging_dir.tar.gz
+            build_dir.tar.gz
+            dl.tar.gz
+            tmp.tar.gz
+            openwrt.tar.gz
+
+      - name: WeChat notification
+        if: steps.Multi-thread.outputs.status == 'success' || steps.Single-thread.outputs.status == 'success' && !cancelled() && job.status == 'success'
+        run: |
+          curl -s -o /dev/null http://www.pushplus.plus/send --data "token=${{ secrets.PUSHPLUS_TOKEN }}&content=OpenWrt第三部分编译成功"
+          # curl https://sc.ftqq.com/${{ secrets.SCKEY }}.send?text=OpenWrt第三部分编译成功
+
+      - name: WeChat notification
+        if: failure() && !cancelled()
+        run: |
+          curl -s -o /dev/null http://www.pushplus.plus/send --data "token=${{ secrets.PUSHPLUS_TOKEN }}&content=OpenWrt第三部分编译失败"
+          # curl https://sc.ftqq.com/${{ secrets.SCKEY }}.send?text=OpenWrt第三部分编译失败
+
+  uploads:
+    needs: build2
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@main
+
+      - name: Initialize environment
+        env:
+          DEBIAN_FRONTEND: noninteractive
+        run: |
+          docker image prune -a -f
+          sudo -E rm -rf /usr/share/dotnet /etc/apt/sources.list.d/* /var/cache/apt/archives /usr/local/share/boost /usr/local/go* /usr/local/lib/android /opt/ghc
+          sudo -E apt-get -y purge azure-cli* docker* ghc* zulu* llvm* firefox google* dotnet* openjdk* mysql* php* mongodb* dotnet* snap*
+          sudo -E apt-get update -y
+          sudo -E apt-get full-upgrade -y
+          sudo -E apt-get install -y build-essential flex bison cmake g++ gawk gcc-multilib g++-multilib gettext git gnutls-dev libfuse-dev libncurses5-dev libssl-dev python3 python3-pip python3-ply python3-pyelftools rsync unzip zlib1g-dev file wget subversion patch upx-ucl autoconf automake curl asciidoc binutils bzip2 lib32gcc-s1 libc6-dev-i386 uglifyjs msmtp texinfo libreadline-dev libglib2.0-dev xmlto libelf-dev libtool autopoint antlr3 gperf ccache swig coreutils haveged scons libpython3-dev rename qemu-utils jq
+          sudo -E apt-get autoremove --purge
+          sudo -E apt-get clean
+          sudo timedatectl set-timezone "$TZ"
+          sudo mkdir -p /workdir
+          sudo chown $USER:$GROUPS /workdir
+          sudo chmod 777 /workdir
+          df -hT
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build2-build-output
+          path: /workdir
+
+      - name: WeChat notification
+        working-directory: /workdir
+        run: |
+          cd /workdir
+          mkdir -p openwrt
+          bsdtar -xzf openwrt.tar.gz -C /workdir/openwrt --strip-components=2 && rm openwrt.tar.gz
           ln -sf /workdir/openwrt ${{ github.workspace }}/openwrt
           curl -s -o /dev/null http://www.pushplus.plus/send --data "token=${{ secrets.PUSHPLUS_TOKEN }}&content=OpenWrt开始最终编译"
           # curl https://sc.ftqq.com/${{ secrets.SCKEY }}.send?text=OpenWrt开始最终编译
@@ -408,33 +560,41 @@ jobs:
           sudo swapoff /mnt/swapfile
           sudo rm -rf /mnt/swapfile
           sudo chmod 777 /mnt
-          sudo mkdir -p -m 777 openwrt/build_dir /mnt/openwrt/dl /mnt/openwrt/staging_dir /mnt/openwrt/build_dir
+          sudo mkdir -p -m 777 openwrt/build_dir /mnt/openwrt/dl /mnt/openwrt/staging_dir /mnt/openwrt/build_dir /mnt/openwrt/tmp
           ln -sf /mnt/openwrt/dl openwrt/dl
+          ln -sf /mnt/openwrt/tmp openwrt/tmp
           ln -sf /mnt/openwrt/staging_dir openwrt/staging_dir
           ln -sf /mnt/openwrt/build_dir openwrt/build_dir
           df -hT
 
       - name: Unzip artifact
         run: |
-          cd /workdir && tar -xzf build_dir.tar.gz -C /mnt/openwrt/build_dir --strip-components=3 && rm build_dir.tar.gz
-          cd /workdir && tar -xzf dl.tar.gz -C /mnt/openwrt/dl --strip-components=3 && rm dl.tar.gz
-          cd /workdir && tar -xzf staging_dir.tar.gz -C /mnt/openwrt/staging_dir --strip-components=3 && rm staging_dir.tar.gz
-          
+          cd /workdir && bsdtar -xzf build_dir.tar.gz -C /mnt/openwrt/build_dir --strip-components=3 && rm build_dir.tar.gz
+          cd /workdir && bsdtar -xzf dl.tar.gz -C /mnt/openwrt/dl --strip-components=3 && rm dl.tar.gz
+          cd /workdir && bsdtar -xzf staging_dir.tar.gz -C /mnt/openwrt/staging_dir --strip-components=3 && rm staging_dir.tar.gz
+          cd /workdir && bsdtar -xzf tmp.tar.gz -C /mnt/openwrt/tmp --strip-components=3 && rm tmp.tar.gz
+
       - name: Move files
         run: |
+          # 使用rsync同步目录并清理原目录
           rsync -av /workdir/openwrt/dl/ /mnt/openwrt/dl/ && rm -rf /workdir/openwrt/dl
+          rsync -av /workdir/openwrt/tmp/ /mnt/openwrt/tmp/ && rm -rf /workdir/openwrt/tmp
           rsync -av /workdir/openwrt/build_dir/ /mnt/openwrt/build_dir/ && rm -rf /workdir/openwrt/build_dir
           rsync -av /workdir/openwrt/staging_dir/ /mnt/openwrt/staging_dir/ && rm -rf /workdir/openwrt/staging_dir
+          # 创建符号链接保持路径映射
           ln -sf /mnt/openwrt/dl /workdir/openwrt/dl
+          ln -sf /mnt/openwrt/tmp /workdir/openwrt/tmp
           ln -sf /mnt/openwrt/build_dir /workdir/openwrt/build_dir
           ln -sf /mnt/openwrt/staging_dir /workdir/openwrt/staging_dir
           df -hT
-   
+
       - name: Fix kernel config missing issue
         run: |
            cd openwrt
+           # 从配置文件中获取 Linux 内核版本号
            LINUX_VERSION=$(grep '^CONFIG_LINUX_' .config | sed -r 's/^CONFIG_LINUX_([0-9\.]+)=y/\1/')
            KERNEL_CONFIG_DIR="build_dir/target-x86_64_musl/linux-x86_64/linux-${LINUX_VERSION}"
+           # 确保 kernel 配置文件存在
            if [ ! -f "${KERNEL_CONFIG_DIR}/.config" ]; then
            echo "Kernel .config 文件缺失，尝试重新生成"
            make target/linux/clean
@@ -442,12 +602,6 @@ jobs:
            make -j$(($(nproc) + 1)) target/linux/compile
            make -j$(($(nproc) + 1)) package/linux/compile
            fi
-
-      - name: Clean build cache
-        run: |
-           cd openwrt
-           make clean toolchain
-           rm -rf /mnt/openwrt/build_dir/toolchain-* /mnt/openwrt/staging_dir/toolchain-*
            
       - name: Multi-thread compile
         id: Multi-thread
@@ -455,13 +609,10 @@ jobs:
           cd openwrt
           echo -e "$(($(nproc) + 1)) thread compile"
           make -j$(($(nproc) + 1))
-          echo "status=success" >> $GITHUB_OUTPUT
-          DEVICE_NAME=$(grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' | tr -d '\n')
-          if [ -n "$DEVICE_NAME" ]; then
-            echo "DEVICE_NAME=_$DEVICE_NAME" >> $GITHUB_ENV
-          fi
-          FILE_DATE=$(date +"%Y%m%d%H%M")
-          echo "FILE_DATE=_$FILE_DATE" >> $GITHUB_ENV
+          echo "::set-output name=status::success"
+          grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
+          [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
+          echo "FILE_DATE=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
           df -hT
           
       - name: Single-thread compile
@@ -470,13 +621,10 @@ jobs:
         run: |
           cd openwrt
           make -j1 V=s
-          echo "status=success" >> $GITHUB_OUTPUT
-          DEVICE_NAME=$(grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' | tr -d '\n')
-          if [ -n "$DEVICE_NAME" ]; then
-            echo "DEVICE_NAME=_$DEVICE_NAME" >> $GITHUB_ENV
-          fi
-          FILE_DATE=$(date +"%Y%m%d%H%M")
-          echo "FILE_DATE=_$FILE_DATE" >> $GITHUB_ENV
+          echo "::set-output name=status::success"
+          grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
+          [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
+          echo "FILE_DATE=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
 
       - name: Upload packages
         uses: actions/upload-artifact@v4
@@ -507,28 +655,28 @@ jobs:
         if: steps.organize.outputs.status == 'success' && env.UPLOAD_COWTRANSFER == 'true' && !cancelled()
         run: |
           curl -fsSL git.io/file-transfer | sh
-          ./transfer cow --block 2621440 -s -p 99 --hash --no-progress "OpenWrt_packages${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}.zip" 2>&1 | tee cowtransfer.log
+          ./transfer cow --block 2621440 -s -p 99 --hash --no-progress *.zip 2>&1 | tee cowtransfer.log
           echo "::warning file=cowtransfer.com::$(cat cowtransfer.log | grep https)"
-          echo "url=$(cat cowtransfer.log | grep https | cut -f3 -d" ")" >> $GITHUB_OUTPUT
+          echo "::set-output name=url::$(cat cowtransfer.log | grep https | cut -f3 -d" ")"
 
       - name: Upload files to WeTransfer
         id: wetransfer
         if: steps.organize.outputs.status == 'success' && env.UPLOAD_WETRANSFER == 'true' && !cancelled()
         run: |
           curl -fsSL git.io/file-transfer | sh
-          ./transfer wet -s -p 16 --no-progress "OpenWrt_packages${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}.zip" 2>&1 | tee wetransfer.log
+          ./transfer wet -s -p 16 --no-progress *.zip 2>&1 | tee wetransfer.log
           echo "::warning file=wetransfer.com::$(cat wetransfer.log | grep https)"
-          echo "url=$(cat wetransfer.log | grep https | cut -f3 -d" ")" >> $GITHUB_OUTPUT
+          echo "::set-output name=url::$(cat wetransfer.log | grep https | cut -f3 -d" ")"
 
       - name: Generate release tag
         id: tag
         if: env.UPLOAD_RELEASE == 'true' && !cancelled()
         run: |
-          echo "release_tag=$(date +"%Y.%m.%d-%H%M")" >> $GITHUB_OUTPUT
+          echo "::set-output name=release_tag::$(date +"%Y.%m.%d-%H%M")"
           touch release.txt
           [ $UPLOAD_COWTRANSFER = true ] && echo "🔗 [Cowtransfer](${{ steps.cowtransfer.outputs.url }})" >> release.txt
           [ $UPLOAD_WETRANSFER = true ] && echo "🔗 [WeTransfer](${{ steps.wetransfer.outputs.url }})" >> release.txt
-          echo "status=success" >> $GITHUB_OUTPUT
+          echo "::set-output name=status::success"
 
       - name: Upload files to release
         uses: softprops/action-gh-release@v1
