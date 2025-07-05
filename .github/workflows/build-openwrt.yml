@@ -49,7 +49,6 @@ jobs:
         run: |
           docker image prune -a -f
           sudo -E rm -rf /usr/share/dotnet /etc/apt/sources.list.d /var/cache/apt/archives /usr/local/share/boost /usr/local/go* /usr/local/lib/android /opt/ghc
-          sudo -E apt-get -y purge azure-cli* docker* ghc* zulu* llvm* firefox google* dotnet* openjdk* mysql* php* mongodb* dotnet* snap*
           sudo bash -c "curl -skL https://raw.githubusercontent.com/jlzsss/Build-ImmortalWrt/blob/main/sources-24.04.list > /etc/apt/sources.list"  
           sudo -E apt-get update -y
           sudo -E apt-get full-upgrade -y
@@ -224,7 +223,6 @@ jobs:
         run: |
           docker image prune -a -f
           sudo -E rm -rf /usr/share/dotnet /etc/apt/sources.list.d /var/cache/apt/archives /usr/local/share/boost /usr/local/go* /usr/local/lib/android /opt/ghc
-          sudo -E apt-get -y purge azure-cli* docker* ghc* zulu* llvm* firefox google* dotnet* openjdk* mysql* php* mongodb* dotnet* snap*
           sudo bash -c "curl -skL https://raw.githubusercontent.com/jlzsss/Build-ImmortalWrt/blob/main/sources-24.04.list > /etc/apt/sources.list"  
           sudo -E apt-get update -y
           sudo -E apt-get full-upgrade -y
@@ -376,7 +374,6 @@ jobs:
         run: |
           docker image prune -a -f
           sudo -E rm -rf /usr/share/dotnet /etc/apt/sources.list.d /var/cache/apt/archives /usr/local/share/boost /usr/local/go* /usr/local/lib/android /opt/ghc
-          sudo -E apt-get -y purge azure-cli* docker* ghc* zulu* llvm* firefox google* dotnet* openjdk* mysql* php* mongodb* dotnet* snap*
           sudo bash -c "curl -skL https://raw.githubusercontent.com/jlzsss/Build-ImmortalWrt/blob/main/sources-24.04.list > /etc/apt/sources.list"  
           sudo -E apt-get update -y
           sudo -E apt-get full-upgrade -y
@@ -527,7 +524,6 @@ jobs:
         run: |
           docker image prune -a -f
           sudo -E rm -rf /usr/share/dotnet /etc/apt/sources.list.d /var/cache/apt/archives /usr/local/share/boost /usr/local/go* /usr/local/lib/android /opt/ghc
-          sudo -E apt-get -y purge azure-cli* docker* ghc* zulu* llvm* firefox google* dotnet* openjdk* mysql* php* mongodb* dotnet* snap*
           sudo bash -c "curl -skL https://raw.githubusercontent.com/jlzsss/Build-ImmortalWrt/blob/main/sources-24.04.list > /etc/apt/sources.list"  
           sudo -E apt-get update -y
           sudo -E apt-get full-upgrade -y
