@@ -158,7 +158,7 @@ jobs:
           make -j$(($(nproc) + 1)) toolchain/compile CC="$CC" CXX="$CXX"
           make -j$(($(nproc) + 1)) target/linux/compile CC="$CC" CXX="$CXX"
           make -j$(($(nproc) + 1)) package/{node,python3,golang,php8,ruby,perl,rust,jq,docker}/compile CC="$CC" CXX="$CXX"
-          echo "::set-output name=status::success"
+          echo "status=success" >> $GITHUB_OUTPUT
           grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
           [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
           echo "FILE_DATE=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
@@ -177,7 +177,7 @@ jobs:
           make -j1 toolchain/compile V=s CC="$CC" CXX="$CXX"
           make -j1 target/linux/compile V=s CC="$CC" CXX="$CXX"
           make -j1 package/{node,python3,golang,php8,ruby,perl,rust,jq,docker}/compile V=s CC="$CC" CXX="$CXX"
-          echo "::set-output name=status::success"
+          echo "status=success" >> $GITHUB_OUTPUT
           grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
           [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
           echo "FILE_DATE=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
@@ -330,8 +330,8 @@ jobs:
           cd openwrt
           echo -e "$(($(nproc) + 1)) thread compile with CCache"
           make -j$(($(nproc) + 1)) package/luci/compile CC="$CC" CXX="$CXX"
-          make -j$(($(nproc) + 1)) package/{luci-app-qbittorrent,luci-app-passwall,luci-app-shadowsocksr,luci-app-vssr,luci-app-adblock-fast,luci-app-adbyby-plus,luci-app-adguardhome,luci-app-transmission,luci-app-aria2,luci-app-bypass,luci-app-homeproxy,luci-app-kcptun,luci-app-openclash,luci-app-passwall2,luci-app-smartdns,luci-app-ssr-plus,luci-app-store,luci-app-trojan,luci-app-v2ray,luci-app-v2raya}/compile CC="$CC" CXX="$CXX"
-          echo "::set-output name=status::success"
+          make -j$(($(nproc) + 1)) package/{luci-app-qbittorrent,luci-app-netspeedtest,luci-app-passwall,luci-app-shadowsocksr,luci-app-vssr,luci-app-adblock-fast,luci-app-adbyby-plus,luci-app-adguardhome,luci-app-transmission,luci-app-aria2,luci-app-bypass,luci-app-homeproxy,luci-app-kcptun,luci-app-openclash,luci-app-passwall2,luci-app-smartdns,luci-app-ssr-plus,luci-app-store,luci-app-trojan,luci-app-v2ray,luci-app-v2raya}/compile CC="$CC" CXX="$CXX"
+          echo "status=success" >> $GITHUB_OUTPUT
           grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
           [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
           echo "FILE_DATE=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
@@ -347,8 +347,8 @@ jobs:
         run: |
           cd openwrt
           make -j1 package/luci/compile V=s CC="$CC" CXX="$CXX"
-          make -j1 package/{luci-app-qbittorrent,luci-app-passwall,luci-app-shadowsocksr,luci-app-vssr,luci-app-adblock-fast,luci-app-adbyby-plus,luci-app-adguardhome,luci-app-transmission,luci-app-aria2,luci-app-bypass,luci-app-homeproxy,luci-app-kcptun,luci-app-openclash,luci-app-passwall2,luci-app-smartdns,luci-app-ssr-plus,luci-app-store,luci-app-trojan,luci-app-v2ray,luci-app-v2raya}/compile V=s CC="$CC" CXX="$CXX"
-          echo "::set-output name=status::success"
+          make -j1 package/{luci-app-qbittorrent,luci-app-netspeedtest,luci-app-passwall,luci-app-shadowsocksr,luci-app-vssr,luci-app-adblock-fast,luci-app-adbyby-plus,luci-app-adguardhome,luci-app-transmission,luci-app-aria2,luci-app-bypass,luci-app-homeproxy,luci-app-kcptun,luci-app-openclash,luci-app-passwall2,luci-app-smartdns,luci-app-ssr-plus,luci-app-store,luci-app-trojan,luci-app-v2ray,luci-app-v2raya}/compile V=s CC="$CC" CXX="$CXX"
+          echo "status=success" >> $GITHUB_OUTPUT
           grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
           [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
           echo "FILE_DATE=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
@@ -502,7 +502,7 @@ jobs:
           echo -e "$(($(nproc) + 1)) thread compile with CCache"
           make package/compile -j$(($(nproc) + 1)) CC="$CC" CXX="$CXX"
           make package/index -j$(($(nproc) + 1)) CC="$CC" CXX="$CXX"
-          echo "::set-output name=status::success"
+          echo "status=success" >> $GITHUB_OUTPUT
           grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
           [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
           echo "FILE_DATE=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
@@ -519,7 +519,7 @@ jobs:
           cd openwrt
           make -j1 package/compile V=s CC="$CC" CXX="$CXX"
           make -j1 package/index V=s CC="$CC" CXX="$CXX"
-          echo "::set-output name=status::success"
+          echo "status=success" >> $GITHUB_OUTPUT
           grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
           [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
           echo "FILE_DATE=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
@@ -666,7 +666,7 @@ jobs:
           
           ccache -s
           df -hT
-          echo "::set-output name=status::success"
+          echo "status=success" >> $GITHUB_OUTPUT
           
       - name: Single-thread compile
         id: Single-thread
@@ -678,7 +678,7 @@ jobs:
           cd openwrt
           make -j1 package/install V=s CC="$CC" CXX="$CXX"
           make -j1 target/install V=s CC="$CC" CXX="$CXX"
-          echo "::set-output name=status::success"
+          echo "status=success" >> $GITHUB_OUTPUT
           grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
           [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
           echo "FILE_DATE=_$(date +"%Y%m%d%H%M")" >> $GITHUB_ENV
@@ -686,14 +686,14 @@ jobs:
 
       - name: Upload packages
         uses: actions/upload-artifact@v4
-        if: steps.Multi-thread.outputs.status == 'success' || steps.Single-thread.outputs.status == 'success'
+        if: steps.final-compile.outputs.status == 'success' || steps.Single-thread.outputs.status == 'success'
         with:
           name: OpenWrt_packages${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
           path: openwrt/bin/packages
 
       - name: Upload openwrt directory
         uses: actions/upload-artifact@v4
-        if: steps.Multi-thread.outputs.status == 'success' || steps.Single-thread.outputs.status == 'success'
+        if: steps.final-compile.outputs.status == 'success' || steps.Single-thread.outputs.status == 'success'
         with:
           name: OpenWrt_${{ env.DEVICE_NAME }}${{ env.FILE_DATE }}
           path: openwrt/bin
@@ -715,7 +715,7 @@ jobs:
           curl -fsSL git.io/file-transfer | sh
           ./transfer cow --block 2621440 -s -p 99 --hash --no-progress *.zip 2>&1 | tee cowtransfer.log
           echo "::warning file=cowtransfer.com::$(cat cowtransfer.log | grep https)"
-          echo "::set-output name=url::$(cat cowtransfer.log | grep https | cut -f3 -d" ")"
+          echo "url=$(cat cowtransfer.log | grep https | cut -f3 -d" ")" >> $GITHUB_OUTPUT
 
       - name: Upload files to WeTransfer
         id: wetransfer
@@ -724,17 +724,17 @@ jobs:
           curl -fsSL git.io/file-transfer | sh
           ./transfer wet -s -p 16 --no-progress *.zip 2>&1 | tee wetransfer.log
           echo "::warning file=wetransfer.com::$(cat wetransfer.log | grep https)"
-          echo "::set-output name=url::$(cat wetransfer.log | grep https | cut -f3 -d" ")"
+          echo "url=$(cat wetransfer.log | grep https | cut -f3 -d" ")" >> $GITHUB_OUTPUT
 
       - name: Generate release tag
         id: tag
         if: env.UPLOAD_RELEASE == 'true' && !cancelled()
         run: |
-          echo "::set-output name=release_tag::$(date +"%Y.%m.%d-%H%M")"
+          echo "release_tag=$(date +"%Y.%m.%d-%H%M")" >> $GITHUB_OUTPUT
           touch release.txt
           [ $UPLOAD_COWTRANSFER = true ] && echo "🔗 [Cowtransfer](${{ steps.cowtransfer.outputs.url }})" >> release.txt
           [ $UPLOAD_WETRANSFER = true ] && echo "🔗 [WeTransfer](${{ steps.wetransfer.outputs.url }})" >> release.txt
-          echo "::set-output name=status::success"
+          echo "status=success" >> $GITHUB_OUTPUT
 
       - name: Upload files to release
         uses: softprops/action-gh-release@v1
@@ -764,7 +764,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
 
       - name: WeChat notification - Final Result
-        if: steps.Multi-thread.outputs.status == 'success' || steps.Single-thread.outputs.status == 'success' && !cancelled() && job.status == 'success'
+        if: steps.final-compile.outputs.status == 'success' || steps.Single-thread.outputs.status == 'success' && !cancelled() && job.status == 'success'
         run: |
           curl -s -o /dev/null http://www.pushplus.plus/send --data "token=${{ secrets.PUSHPLUS_TOKEN }}&content=OpenWrt编译成功"
           # curl https://sc.ftqq.com/${{ secrets.SCKEY }}.send?text=OpenWrt编译成功
