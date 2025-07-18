@@ -13,8 +13,9 @@ on:
     - cron: "0 17 * * *"
 
 permissions:
+  packages: write
   contents: write
-  actions: read
+  actions: write
   pull-requests: write
 
 env:
