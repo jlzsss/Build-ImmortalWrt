@@ -335,8 +335,8 @@ jobs:
         run: |
           cd openwrt
           echo -e "$(($(nproc) + 1)) thread compile with CCache"
-          make -j$(($(nproc) + 1)) package/luci/compile CC="$CC" CXX="$CXX"
-          make -j$(($(nproc) + 1)) package/{dnscrypt-proxy2,luci-app-qbittorrent,luci-app-netspeedtest,luci-app-passwall,luci-app-shadowsocksr,luci-app-vssr,luci-app-adblock-fast,luci-app-adbyby-plus,luci-app-adguardhome,luci-app-transmission,luci-app-aria2,luci-app-bypass,luci-app-homeproxy,luci-app-kcptun,luci-app-openclash,luci-app-passwall2,luci-app-smartdns,luci-app-ssr-plus,luci-app-store,luci-app-trojan,luci-app-v2ray,luci-app-v2raya}/compile CC="$CC" CXX="$CXX"
+          make -j$(($(nproc) + 1)) package/luci/compile BUILD_PACKAGES=y CC="$CC" CXX="$CXX"
+          make -j$(($(nproc) + 1)) package/{dnscrypt-proxy2,luci-app-qbittorrent,luci-app-netspeedtest,luci-app-passwall,luci-app-shadowsocksr,luci-app-vssr,luci-app-adblock-fast,luci-app-adbyby-plus,luci-app-adguardhome,luci-app-transmission,luci-app-aria2,luci-app-bypass,luci-app-homeproxy,luci-app-kcptun,luci-app-openclash,luci-app-passwall2,luci-app-smartdns,luci-app-ssr-plus,luci-app-store,luci-app-trojan,luci-app-v2ray,luci-app-v2raya}/compile BUILD_PACKAGES=y CC="$CC" CXX="$CXX"
           echo "status=success" >> $GITHUB_OUTPUT
           grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
           [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
@@ -352,8 +352,8 @@ jobs:
           CXX: "ccache g++"
         run: |
           cd openwrt
-          make -j1 package/luci/compile V=s CC="$CC" CXX="$CXX"
-          make -j1 package/{dnscrypt-proxy2,luci-app-qbittorrent,luci-app-netspeedtest,luci-app-passwall,luci-app-shadowsocksr,luci-app-vssr,luci-app-adblock-fast,luci-app-adbyby-plus,luci-app-adguardhome,luci-app-transmission,luci-app-aria2,luci-app-bypass,luci-app-homeproxy,luci-app-kcptun,luci-app-openclash,luci-app-passwall2,luci-app-smartdns,luci-app-ssr-plus,luci-app-store,luci-app-trojan,luci-app-v2ray,luci-app-v2raya}/compile V=s CC="$CC" CXX="$CXX"
+          make -j1 package/luci/compile BUILD_PACKAGES=y V=s CC="$CC" CXX="$CXX"
+          make -j1 package/{dnscrypt-proxy2,luci-app-qbittorrent,luci-app-netspeedtest,luci-app-passwall,luci-app-shadowsocksr,luci-app-vssr,luci-app-adblock-fast,luci-app-adbyby-plus,luci-app-adguardhome,luci-app-transmission,luci-app-aria2,luci-app-bypass,luci-app-homeproxy,luci-app-kcptun,luci-app-openclash,luci-app-passwall2,luci-app-smartdns,luci-app-ssr-plus,luci-app-store,luci-app-trojan,luci-app-v2ray,luci-app-v2raya}/compile BUILD_PACKAGES=y V=s CC="$CC" CXX="$CXX"
           echo "status=success" >> $GITHUB_OUTPUT
           grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
           [ -s DEVICE_NAME ] && echo "DEVICE_NAME=_$(cat DEVICE_NAME)" >> $GITHUB_ENV
@@ -506,7 +506,7 @@ jobs:
         run: |
           cd openwrt
           echo -e "$(($(nproc) + 1)) thread compile with CCache"
-          make package/compile -j$(($(nproc) + 1)) CC="$CC" CXX="$CXX"
+          make package/compile -j$(($(nproc) + 1)) BUILD_PACKAGES=y CC="$CC" CXX="$CXX"
           make package/index -j$(($(nproc) + 1)) CC="$CC" CXX="$CXX"
           echo "status=success" >> $GITHUB_OUTPUT
           grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
@@ -523,7 +523,7 @@ jobs:
           CXX: "ccache g++"
         run: |
           cd openwrt
-          make -j1 package/compile V=s CC="$CC" CXX="$CXX"
+          make -j1 package/compile BUILD_PACKAGES=y V=s CC="$CC" CXX="$CXX"
           make -j1 package/index V=s CC="$CC" CXX="$CXX"
           echo "status=success" >> $GITHUB_OUTPUT
           grep '^CONFIG_TARGET.*DEVICE.*=y' .config | sed -r 's/.*DEVICE_(.*)=y/\1/' > DEVICE_NAME
