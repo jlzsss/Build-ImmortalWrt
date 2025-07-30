@@ -154,7 +154,7 @@ jobs:
         run: |
           cd /workdir
           # 解压环境
-          bsdtar -xzf openwrt-env.tar.gz && rm openwrt-env.tar.gz
+          tar -xzf openwrt-env.tar.gz && rm openwrt-env.tar.gz
           # 重新创建符号链接
           ln -sf /workdir/openwrt ${{ github.workspace }}/openwrt
           # 恢复 CCache 目录
@@ -329,7 +329,7 @@ jobs:
       - name: Restore environment links
         run: |
           cd /workdir
-          bsdtar -xzf openwrt-env.tar.gz && rm openwrt-env.tar.gz
+          tar -xzf openwrt-env.tar.gz && rm openwrt-env.tar.gz
           ln -sf /workdir/openwrt ${{ github.workspace }}/openwrt
           sudo ln -sf /workdir/ccache $CCACHE_DIR
           ccache --set-config=max_size=$CCACHE_MAXSIZE
@@ -497,7 +497,7 @@ jobs:
       - name: Restore environment links
         run: |
           cd /workdir
-          bsdtar -xzf openwrt-env.tar.gz && rm openwrt-env.tar.gz
+          tar -xzf openwrt-env.tar.gz && rm openwrt-env.tar.gz
           ln -sf /workdir/openwrt ${{ github.workspace }}/openwrt
           sudo ln -sf /workdir/ccache $CCACHE_DIR
           ccache --set-config=max_size=$CCACHE_MAXSIZE
@@ -665,7 +665,7 @@ jobs:
       - name: Restore environment links
         run: |
           cd /workdir
-          bsdtar -xzf openwrt-env.tar.gz && rm openwrt-env.tar.gz
+          tar -xzf openwrt-env.tar.gz && rm openwrt-env.tar.gz
           ln -sf /workdir/openwrt ${{ github.workspace }}/openwrt
           sudo ln -sf /workdir/ccache $CCACHE_DIR
           ccache --set-config=max_size=$CCACHE_MAXSIZE
