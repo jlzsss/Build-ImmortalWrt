@@ -134,6 +134,15 @@ jobs:
       - name: WeChat notification
         run: |
           curl -s -o /dev/null http://www.pushplus.plus/send --data "token=${{ secrets.PUSHPLUS_TOKEN }}&content=开始编译OpenWrt第一部分"
+  
+      - name: Ensure /workdir directory exists and has correct permissions
+        run: |
+          # 确保 /workdir 目录存在
+          sudo mkdir -p /workdir
+          # 设置正确的所有权和权限
+          sudo chown $USER:$GROUPS /workdir
+          sudo chmod 777 /workdir
+          df -hT
           
       - name: Download full build environment
         uses: actions/download-artifact@v4
@@ -301,6 +310,15 @@ jobs:
       - name: WeChat notification
         run: |
           curl -s -o /dev/null http://www.pushplus.plus/send --data "token=${{ secrets.PUSHPLUS_TOKEN }}&content=开始编译OpenWrt第二部分"
+  
+      - name: Ensure /workdir directory exists and has correct permissions
+        run: |
+          # 确保 /workdir 目录存在
+          sudo mkdir -p /workdir
+          # 设置正确的所有权和权限
+          sudo chown $USER:$GROUPS /workdir
+          sudo chmod 777 /workdir
+          df -hT  
           
       - name: Download full build environment
         uses: actions/download-artifact@v4
@@ -460,6 +478,15 @@ jobs:
       - name: WeChat notification
         run: |
           curl -s -o /dev/null http://www.pushplus.plus/send --data "token=${{ secrets.PUSHPLUS_TOKEN }}&content=开始编译OpenWrt第三部分"
+ 
+      - name: Ensure /workdir directory exists and has correct permissions
+        run: |
+          # 确保 /workdir 目录存在
+          sudo mkdir -p /workdir
+          # 设置正确的所有权和权限
+          sudo chown $USER:$GROUPS /workdir
+          sudo chmod 777 /workdir
+          df -hT
           
       - name: Download full build environment
         uses: actions/download-artifact@v4
@@ -619,6 +646,15 @@ jobs:
       - name: WeChat notification
         run: |
           curl -s -o /dev/null http://www.pushplus.plus/send --data "token=${{ secrets.PUSHPLUS_TOKEN }}&content=OpenWrt开始最终编译"
+ 
+      - name: Ensure /workdir directory exists and has correct permissions
+        run: |
+          # 确保 /workdir 目录存在
+          sudo mkdir -p /workdir
+          # 设置正确的所有权和权限
+          sudo chown $USER:$GROUPS /workdir
+          sudo chmod 777 /workdir
+          df -hT
           
       - name: Download full build environment
         uses: actions/download-artifact@v4
