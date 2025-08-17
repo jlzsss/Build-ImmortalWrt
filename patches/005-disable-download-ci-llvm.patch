@@ -1,6 +1,6 @@
---- a/feeds/packages/lang/rust/Makefile
-+++ b/feeds/packages/lang/rust/Makefile
-@@ -54,7 +54,7 @@ HOST_CONFIGURE_ARGS = \
+--- a/Makefile
++++ b/Makefile
+@@ -75,7 +75,7 @@ HOST_CONFIGURE_ARGS = \
  	--dist-compression-formats=gz \
  	--disable-sanitizers \
  	--release-channel=stable \
@@ -9,5 +9,3 @@
 -	--set=llvm.download-ci-llvm=true \
 +	--set=llvm.download-ci-llvm=false \
  	$(TARGET_CONFIGURE_ARGS)
- 
- define Host/Uninstall
