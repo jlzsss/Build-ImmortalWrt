@@ -59,7 +59,7 @@ jobs:
         run: |
           docker image prune -a -f
           sudo -E rm -rf /usr/share/dotnet /etc/apt/sources.list.d/* /var/cache/apt/archives /usr/local/share/boost /usr/local/go* /usr/local/lib/android /opt/ghc
-          sudo -E apt-get -y purge azure-cli* docker* ghc* llvm* firefox google* dotnet* mysql* 
+          sudo -E apt-get -y purge azure-cli* docker* ghc* llvm* firefox google* mysql* 
           sudo mv ${GITHUB_WORKSPACE}/sources-24.04.list /etc/apt/sources.list.d/
           sudo -E apt-get update -y
           sudo -E apt-get full-upgrade -y
@@ -235,7 +235,7 @@ jobs:
         run: |
           docker image prune -a -f
           sudo -E rm -rf /usr/share/dotnet /etc/apt/sources.list.d/* /var/cache/apt/archives /usr/local/share/boost /usr/local/go* /usr/local/lib/android /opt/ghc
-          sudo -E apt-get -y purge azure-cli* docker* ghc* llvm* firefox google* dotnet* mysql*
+          sudo -E apt-get -y purge azure-cli* docker* ghc* llvm* firefox google* mysql*
           sudo mv ${GITHUB_WORKSPACE}/sources-24.04.list /etc/apt/sources.list.d/
           sudo -E apt-get update -y
           sudo -E apt-get full-upgrade -y
@@ -406,7 +406,7 @@ jobs:
         run: |
           docker image prune -a -f
           sudo -E rm -rf /usr/share/dotnet /etc/apt/sources.list.d/* /var/cache/apt/archives /usr/local/share/boost /usr/local/go* /usr/local/lib/android /opt/ghc
-          sudo -E apt-get -y purge azure-cli* docker* ghc* llvm* firefox google* dotnet* mysql*
+          sudo -E apt-get -y purge azure-cli* docker* ghc* llvm* firefox google* mysql*
           sudo mv ${GITHUB_WORKSPACE}/sources-24.04.list /etc/apt/sources.list.d/
           sudo -E apt-get update -y
           sudo -E apt-get full-upgrade -y
@@ -577,7 +577,7 @@ jobs:
         run: |
           docker image prune -a -f
           sudo -E rm -rf /usr/share/dotnet /etc/apt/sources.list.d/* /var/cache/apt/archives /usr/local/share/boost /usr/local/go* /usr/local/lib/android /opt/ghc
-          sudo -E apt-get -y purge azure-cli* docker* ghc* llvm* firefox google* dotnet* mysql*
+          sudo -E apt-get -y purge azure-cli* docker* ghc* llvm* firefox google* mysql*
           sudo mv ${GITHUB_WORKSPACE}/sources-24.04.list /etc/apt/sources.list.d/
           sudo -E apt-get update -y
           sudo -E apt-get full-upgrade -y
