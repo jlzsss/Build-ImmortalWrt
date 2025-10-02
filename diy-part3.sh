@@ -16,6 +16,7 @@ git clone https://github.com/jlzsss/luci-app-shadowsocksr.git package/luci-app-s
 git clone https://github.com/tty228/luci-app-serverchan.git package/luci-app-serverchan
 git clone https://github.com/peter-tank/openwrt-minisign.git package/minisign
 git clone https://github.com/aa65535/openwrt-chinadns.git package/chinadns
+git clone --depth 1 --filter=blob:none --sparse https://github.com/xiaorouji/openwrt-passwall-packages.git temp-lede && cd temp-lede && git sparse-checkout set geoview && cd .. && mkdir -p package/geoview && mv temp-lede/geoview package/ && rm -rf temp-lede
 rm -rf package/feeds/kenzok8/luci-app-qbittorrent
 rm -rf package/feeds/kenzok8/qbittorrent
 rm -rf package/feeds/kenzok8/qBittorrent
