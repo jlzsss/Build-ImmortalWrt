@@ -47,9 +47,6 @@ rm -rf feeds/liuran/GoQuiet
 rm -rf feeds/liuran/gost
 rm -rf feeds/kenzok8/3proxy/patches
 rm -rf feeds/kenzok8/shortcut-fe
-rm -rf feeds/packages/net/geoview
-rm -rf feeds/kenzok8/v2ray-geoview
-rm -rf feeds/packages3/patch/wall/geoview
 rm -rf feeds/NueXini/luci-app-gost
 rm -rf feeds/NueXini/gost
 rm -rf feeds/NueXini/qBittorrent
