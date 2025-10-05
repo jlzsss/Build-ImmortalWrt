@@ -26,6 +26,9 @@ git clone https://github.com/frainzy1477/luci-app-trojan.git package/luci-app-tr
 git clone -b test https://github.com/frainzy1477/luci-app-clash.git package/luci-app-clash
 git clone https://github.com/sirpdboy/netspeedtest.git package/netspeedtest
 git clone https://github.com/lisaac/luci-app-dockerman.git package/luci-app-dockerman
+git clone https://github.com/xiaorouji/openwrt-passwall-packages package/passwall-packages
+git clone https://github.com/xiaorouji/openwrt-passwall package/passwall
+git clone https://github.com/xiaorouji/openwrt-passwall2 package/passwall2
 # git clone https://github.com/project-openwrt/luci-app-koolproxyR.git package/luci-app-koolproxyR
 git clone -b master --depth 1 https://github.com/vernesong/OpenClash.git package/OpenClash
 # svn co https://github.com/Lienol/openwrt/trunk/package/diy package/diy

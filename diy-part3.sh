@@ -32,12 +32,6 @@ rm -rf package/feeds/luci2/luci-app-turboacc
 ./scripts/feeds install -p luci2 transmission
 ./scripts/feeds install -p luci2 transmission-web-control
 rm -rf feeds/packages/net/{xray-core,v2ray-geodata,sing-box,chinadns-ng,dns2socks,hysteria,ipt2socks,microsocks,naiveproxy,shadowsocks-libev,shadowsocks-rust,shadowsocksr-libev,simple-obfs,tcping,trojan-plus,tuic-client,v2ray-plugin,xray-plugin,geoview,shadow-tls}
-git clone https://github.com/xiaorouji/openwrt-passwall-packages package/passwall-packages
-rm -rf feeds/luci/applications/luci-app-passwall
-rm -rf feeds/luci/applications/luci-app-passwall2
-git clone https://github.com/xiaorouji/openwrt-passwall package/passwall
-git clone https://github.com/xiaorouji/openwrt-passwall2 package/passwall2
-
 rm -rf package/feeds/lede/php7
 # rm -rf package/feeds/packages/php7
 rm -rf feeds/lede/mt-drivers
