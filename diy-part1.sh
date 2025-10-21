@@ -29,6 +29,7 @@ git clone https://github.com/lisaac/luci-app-dockerman.git package/luci-app-dock
 git clone https://github.com/xiaorouji/openwrt-passwall-packages package/passwall-packages
 git clone https://github.com/xiaorouji/openwrt-passwall package/passwall
 git clone https://github.com/xiaorouji/openwrt-passwall2 package/passwall2
+git clone https://github.com/Thaolga/openwrt-nekobox package/openwrt-nekobox
 # git clone https://github.com/project-openwrt/luci-app-koolproxyR.git package/luci-app-koolproxyR
 git clone -b master --depth 1 https://github.com/vernesong/OpenClash.git package/OpenClash
 # svn co https://github.com/Lienol/openwrt/trunk/package/diy package/diy
